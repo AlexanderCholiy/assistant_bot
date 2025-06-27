@@ -10,18 +10,19 @@ from users.handlers import router as user_router
 
 
 async def main():
-    """Запускаем бота и пропускаем все накопленные входящие"""
+    """Запускаем бота и пропускаем все накопленные входящие сообщения"""
     bot = Bot(
         app_config.BOT_TOKEN,
         default=DefaultBotProperties(ParseMode.MARKDOWN_V2)
     )
     dp = Dispatcher()
     dp.include_routers(user_router,)
-    await bot.delete_webhook(drop_pending_updates=True)
 
     if app_config.DEBUG:
         logging.basicConfig(level=logging.INFO)
-    with bot.session:
+
+    async with bot:
+        await bot.delete_webhook(drop_pending_updates=True)
         await dp.start_polling(bot)
 
 
